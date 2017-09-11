@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="afb-aaaa" version="0.1">
+  <name>afb-aaaa</name>
+  <icon src="icon.png"/>
+  <content src="EntryPoint_Path_Not_Set" type="MimeType_Not_Set"/>
+  <description>Expose Alsa through AGL AppFw</description>
+  <author>Fulup, Ar Foll &lt;fulup@iot.bzh&gt;</author>
+  <license>Apache-V2</license>
+</widget>

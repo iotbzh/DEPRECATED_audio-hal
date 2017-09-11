@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="afb-utilities">
+        <in>filescan-utils.c</in>
+        <in>wrap-json.c</in>
+      </df>
+      <df name="ctl-dispatch">
+        <in>ctl-action.c</in>
+        <in>ctl-config.c</in>
+        <in>ctl-lua.c</in>
+        <in>ctl-onload.c</in>
+        <in>ctl-plugin.c</in>
+        <in>ctl-timer.c</in>
+      </df>
+      <df name="hal-binding">
+        <in>hal-apidef.c</in>
+        <in>hal-binding.c</in>
+        <in>hal-mapalsa.c</in>
+        <in>hal-mapconfig.c</in>
+        <in>hal-normalize.c</in>
+      </df>
+      <df name="hal-effect">
+        <in>effect-volramp.c</in>
+      </df>
+      <df name="hal-interface">
+        <in>hal-interface.c</in>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>CMakeLists.txt</itemPath>
+      <itemPath>Makefile</itemPath>
+      <itemPath>nbproject/private/launcher.properties</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <flagsDictionary>
+        <element flagsID="0" commonFlags="-fPIC -fPIC"/>
+        <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -fPIC"/>
+      </flagsDictionary>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>build</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+        <preBuild>
+          <preBuildCommandWorkingDir>build</preBuildCommandWorkingDir>
+          <preBuildCommand>cmake ..</preBuildCommand>
+          <preBuildFirst>true</preBuildFirst>
+        </preBuild>
+      </makefileType>
+      <item path="afb-utilities/filescan-utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="afb-utilities/wrap-json.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/afb-utilities</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-action.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-config.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-lua.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-onload.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-plugin.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>afb-utilities</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="ctl-dispatch/ctl-timer.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>build/ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <folder path="0/ctl-dispatch">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>ctl-dispatch</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/hal-effect">
+        <cTool>
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>hal-effect</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>hal-interface</pElem>
+            <pElem>ctl-dispatch</pElem>
+            <pElem>hal-binding</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/hal-effect</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/hal-interface">
+        <cTool>
+          <incDir>
+            <pElem>hal-interface</pElem>
+            <pElem>build/hal-interface</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <item path="hal-binding/hal-apidef.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>hal-binding</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>ctl-dispatch</pElem>
+            <pElem>hal-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/hal-binding</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="hal-binding/hal-binding.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+          <incDir>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>/usr/include/p11-kit-1</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/lua5.3</pElem>
+            <pElem>hal-interface</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CONTROL_CONFIG_PATH=\"/home/fulup/Workspace/AGL-AppFW/audio-hal/conf.d/project:/usr/local/afb-aaaa\"</Elem>
+            <Elem>CONTROL_PLUGIN_PATH=\"/home/fulup/Workspace/AGL-AppFW/audio-hal:/usr/local/afb-aaaa/lib/audio-plugins:/usr/lib/afb/audio-plugins\"</Elem>
+            <Elem>CONTROL_SUPPORT_LUA=1</Elem>
+            <Elem>MAX_LINEAR_DB_SCALE=24</Elem>
+            <Elem>MAX_SND_CARD=16</Elem>
+            <Elem>NATIVE_LINUX</Elem>
+            <Elem>TLV_BYTE_SIZE=256</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="hal-binding/hal-mapalsa.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>hal-binding</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>ctl-dispatch</pElem>
+            <pElem>hal-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/hal-binding</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="hal-binding/hal-mapconfig.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>hal-binding</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>ctl-dispatch</pElem>
+            <pElem>hal-interface</pElem>
+            <pElem>../../../opt/include</pElem>
+            <pElem>build/hal-binding</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="hal-binding/hal-normalize.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+          <incDir>
+            <pElem>../../../opt/include/afb</pElem>
+            <pElem>hal-binding</pElem>
+            <pElem>../../../opt/include/alsa</pElem>
+            <pElem>/usr/include/json-c</pElem>
+            <pElem>build/hal-binding</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="hal-effect/effect-volramp.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="hal-interface/hal-interface.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
+        </cTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

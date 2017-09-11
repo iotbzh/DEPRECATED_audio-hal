@@ -1,0 +1,16 @@
+Priority: optional
+Maintainer: Fulup, Ar Foll <fulup@iot.bzh>
+Source: agl-afb-aaaa
+Build-Depends: debhelper (>= 5),
+ pkg-config,
+ cmake,
+ gcc,
+ g++,
+
+Standards-Version: 3.8.2
+Homepage: https://github.com/iotbzh/audio-bindings
+
+Package: agl-afb-aaaa
+Section: libs
+Architecture: any
+Description: Expose Alsa through AGL AppFw

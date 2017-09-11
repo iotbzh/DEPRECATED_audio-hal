@@ -1,0 +1,73 @@
+{
+    "$schema": "ToBeDone",
+    "metadata": {
+        "api": "jabra-usb",
+        "label": "Jabra SOLEMATE v1.34.0",
+        "info": "Audio HAL for Jabra Solemate USB speaker",
+        "version": "1.0",
+        "require": "alsacore"
+    },
+
+    "plugins": [
+        {
+            "label": "volume-ramp-effect",
+            "info": "Sample Volume Ramp Audio Effect",
+            "basename": "soft-vol-ramp", 
+            "ldpath": "./hal-effect"
+        }],
+
+    "onload": [{
+            "label": "vol-ramp",
+            "callback": {
+                "plugin": "volume-ramp-effect",
+                "function": "CreateRampEffect"
+            },
+            "args": [{
+                    "label": "ramp-slow", 
+                    "slave": "PCM_Volume_Multimedia",
+                    "delay": 100,
+                    "stepdown": 1,
+                    "stepup": 1
+                }, {
+                    "label": "ramp-std", 
+                    "slave": "PCM_Volume_Multimedia",
+                    "delay": 100,
+                    "stepdown": 4,
+                    "stepup": 2
+                }, {
+                    "label": "ramp-fast", 
+                    "slave": "PCM_Volume_Multimedia",
+                    "delay": 50,
+                    "stepdown": 6,
+                    "stepup": 3
+                }
+            ]
+        }],
+
+    "halmap": [
+        {
+            "label": "Master_Playback_Volume",
+            "alsa": {
+                "name": "PCM Playback Volume",
+                "value": 12 
+            }
+        }, {
+            "label": "PCM_Playback_Volume",
+            "alsa": {
+                "name": "PCM Playback Volume",
+                "value": 12 
+            }
+        }, {
+            "label": "Master_Playback_Ramp",
+            "info": "ramp volume linearly according to current ramp setting",
+            "action": {
+                "label": "ramp-slow",
+                "callback": {
+                    "plugin": "volume-ramp-effect",
+                    "function": "SoftVolumeRamp"
+                }
+            }
+        }
+    ]
+}
+
