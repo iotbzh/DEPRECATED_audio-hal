@@ -53,6 +53,7 @@ typedef struct {
     const char *name;
     const char *info;
     alsaHalMapT *ctls;
+    json_object *ctlsJ;
     const char *devid;
     json_object* (*volumeCB)(ActionSetGetT action, const alsaHalCtlMapT *halCtls, json_object *valuesJ);
 } alsaHalSndCardT;
@@ -63,7 +64,8 @@ PUBLIC void halSetCtls(afb_req request);
 PUBLIC json_object *halGetCtlByTag(halCtlsTagT tag);
 PUBLIC void halGetCtls(afb_req request);
 PUBLIC void halSubscribe(afb_req request);
-PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
+PUBLIC int halMapAlsaLoad(alsaHalSndCardT *alsaHalSndCard);
+PUBLIC int halMapAlsaExec(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard);
 
 // hal-volramp.c
 PUBLIC void volumeRamp(halCtlsTagT halTag, alsaHalCtlMapT *control, void* handle, json_object *valJ);

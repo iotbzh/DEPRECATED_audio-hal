@@ -153,9 +153,11 @@ OnErrorExit:
 
 
 
-STATIC int CreateOnevolRamp (halvolRampT *volRamp, json_object*argsJ, HalpCallbackT *api) {
+STATIC int CreateOnevolRamp (VolPluginCtxT *ctx, int index, json_object*argsJ) {
 
    const char* slave;
+   HalpCallbackT *api = ctx->api;
+   halvolRampT *volRamp = &ctx->volRamps[index];
    
    if (!argsJ) goto OnErrorExit;
     
@@ -165,8 +167,8 @@ STATIC int CreateOnevolRamp (halvolRampT *volRamp, json_object*argsJ, HalpCallba
        goto OnErrorExit;
    }
 
-   volRamp->slave = api->LabelToTag(slave);
    volRamp->api = api;
+   volRamp->slave = api->LabelToTag(slave);
    
    return 0;
    
@@ -175,9 +177,9 @@ OnErrorExit:
    
 }
 
-CTLP_CAPI (CreateRampEffect, source, argsJ, UNUSED_ARG(queryJ), context) {
+CTLP_CAPI (CreateRampEffect, source, argsJ, UNUSED_ARG(queryJ)) {
     
-    VolPluginCtxT *ctx=(VolPluginCtxT*)context;
+    VolPluginCtxT *ctx=(VolPluginCtxT*)source->context;
     int err=0;
     
     if (json_object_get_type(argsJ) == json_type_array) {
@@ -186,21 +188,21 @@ CTLP_CAPI (CreateRampEffect, source, argsJ, UNUSED_ARG(queryJ), context) {
         ctx->count=length;
         
         for (int idx=0; idx < length; idx++) {
-            err += CreateOnevolRamp (&ctx->volRamps[idx], json_object_array_get_idx(argsJ, idx), ctx->api);
+            err += CreateOnevolRamp (ctx, idx, json_object_array_get_idx(argsJ, idx));
         }
     } else {
         ctx->volRamps= calloc (1, sizeof(halvolRampT));  
         ctx->count=1;        
-        err = CreateOnevolRamp (&ctx->volRamps[0], argsJ, ctx->api);
+        err = CreateOnevolRamp (ctx, 0, argsJ);
     }
     
     return 0;
 }
 
 
-CTLP_CAPI (SoftVolumeRamp, source, UNUSED_ARG(argsJ), eventJ, context) {
+CTLP_CAPI (SoftVolumeRamp, source, UNUSED_ARG(argsJ), eventJ) {
     
-    VolPluginCtxT *ctx=(VolPluginCtxT*)context;
+    VolPluginCtxT *ctx=(VolPluginCtxT*)source->context;
     halvolRampT *volRamp = NULL;
     
     // map softvol type on action label

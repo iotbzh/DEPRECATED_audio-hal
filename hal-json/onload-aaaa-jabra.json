@@ -58,14 +58,40 @@
                 "value": 12 
             }
         }, {
+            "label": "PCM_Playback_Switch",
+            "alsa": {
+                "name": "PCM Playback Switch",
+                "value": 12 
+            }
+        }, {
             "label": "Master_Playback_Ramp",
             "info": "ramp volume linearly according to current ramp setting",
+            "alsa": {
+                "name": "Hal-VolRamp",
+                "numid": -1,
+                "type": "INTEGER",
+                "count": 1,
+                "minval": 0,
+                "maxval": 100,
+                "step": 1
+            },
             "action": {
                 "label": "ramp-slow",
                 "callback": {
                     "plugin": "volume-ramp-effect",
                     "function": "SoftVolumeRamp"
                 }
+            }
+        }, {
+            "label": "PCM_Volume_Multimedia",
+            "info": "Playback Multimedia Softvol",
+            "alsa": {
+                "name": "Playback Multimedia",
+                "numid": -1,
+                "type": "INTEGER",
+                "count": 2,
+                "maxval": 255,
+                "value": 200
             }
         }
     ]

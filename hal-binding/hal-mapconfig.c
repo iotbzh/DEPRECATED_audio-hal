@@ -28,9 +28,33 @@
 
 #include "hal-apidef.h"
 
+
+static const char *const snd_ctl_elem_type_names[] = {
+        [SND_CTL_ELEM_TYPE_NONE]= "NONE",
+        [SND_CTL_ELEM_TYPE_BOOLEAN]= "BOOLEAN",
+        [SND_CTL_ELEM_TYPE_INTEGER]="INTEGER",
+        [SND_CTL_ELEM_TYPE_ENUMERATED]="ENUMERATED",
+        [SND_CTL_ELEM_TYPE_BYTES]="BYTES",
+        [SND_CTL_ELEM_TYPE_IEC958]="IEC958",
+        [SND_CTL_ELEM_TYPE_INTEGER64]="INTEGER64",
+};
+
+STATIC snd_ctl_elem_type_t MapsAlsaTypeToEnum (const char * label) {
+    int length = sizeof (snd_ctl_elem_type_names) / sizeof(char*);
+    
+    for (int idx=0; idx < length; idx++) {
+        if (!strcasecmp (label, snd_ctl_elem_type_names[idx])) return idx;
+    }
+    
+    return SND_CTL_ELEM_TYPE_NONE;
+    
+}
+        
 STATIC int ProcessOnMap (alsaHalMapT *alsaMap, json_object *mapJ) {
     
     json_object *alsaJ=NULL, *actionJ=NULL;
+    
+    AFB_NOTICE ("ProcessOnMap mapJ=%s", json_object_get_string(mapJ));
     
     int err= wrap_json_unpack (mapJ, "{s?s,s?i,s?s,s?o,s?o !}", "label",&alsaMap->label, "tag",&alsaMap->tag, "info",&alsaMap->info, "alsa",&alsaJ, "action", &actionJ);
     if (err) {
@@ -44,13 +68,22 @@ STATIC int ProcessOnMap (alsaHalMapT *alsaMap, json_object *mapJ) {
     }
     
     if (alsaJ) {
-        alsaHalCtlMapT ctl=alsaMap->ctl;
-        int err= wrap_json_unpack (alsaJ, "{s?s,s?i,s?i,s?i,s?i,s?i,s?i !}", "name",&ctl.name, "numid",&ctl.numid, "count",&ctl.count
-            , "minval",&ctl.minval, "maxval",&ctl.maxval, "value",&ctl.value, "step",&ctl.step);
+        const char *typename=NULL;
+        alsaHalCtlMapT *ctl=&alsaMap->ctl;
+        int err= wrap_json_unpack (alsaJ, "{s?s,s?i,s?s,s?i,s?i,s?i,s?i,s?i !}", "name",&ctl->name, "numid",&ctl->numid, "type",&typename, "count",&ctl->count
+            , "minval",&ctl->minval, "maxval",&ctl->maxval, "value",&ctl->value, "step",&ctl->step);
         if (err) {
            AFB_ERROR ("ProcessOnMap: parsing json alsa error missing name|numid|[count]|[value]|[step]|[minval]|[maxval]|[minval] in:\n-- %s", json_object_get_string(alsaJ));
            goto OnErrorExit;
-        }        
+        }
+
+        if (typename) {
+            ctl->type = MapsAlsaTypeToEnum (typename);
+            if (ctl->type == SND_CTL_ELEM_TYPE_NONE) {
+                AFB_ERROR ("ProcessOnMap: invalid ALSA type alsa=%s", json_object_get_string(alsaJ));
+                goto OnErrorExit;
+            }
+        }
     }
 
     if (actionJ) {
@@ -101,18 +134,13 @@ PUBLIC int MapConfigLoad(CtlSectionT *section, json_object *mapsJ) {
             AFB_ERROR ("OnloadLoad config fail processing onload maps");
             goto OnErrorExit;
         }
-        
     } else {
-        // Exec time process onload action now
+        // AlsaExec is called directly from hal-apidef.c init function 
         ctlMaps=(alsaHalMapT*)section->handle;
         if (!ctlMaps) {
             AFB_ERROR ("OnloadLoad Cannot Exec Non Existing Onload Action");
             goto OnErrorExit;
-        }
-
-//        for (int idx=0; maps[idx].source.label != NULL; idx ++) {
-//            ActionDispatchOne(&maps[idx], NULL, NULL_AFBREQ);
-//        }              
+        }     
     }
 
     return 0;

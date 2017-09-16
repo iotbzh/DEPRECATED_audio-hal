@@ -72,43 +72,46 @@ static HalpCallbackT halCallbacks = {
     .GetCtlByTag = halGetCtlByTag,
 };
 
+#define HALMAP_IDX 2
+
 // Config Section definition (note: controls section index should match handle retrieval in HalConfigExec)
 static CtlSectionT ctlSections[]= {
     [0]={.key="plugins" , .loadCB= PluginConfig, .handle= &halCallbacks},
     [1]={.key="onload"  , .loadCB= OnloadConfig},
-    [2]={.key="halmap"  , .loadCB= MapConfigLoad},
+    [HALMAP_IDX]={.key="halmap"  , .loadCB= MapConfigLoad},
     [3]={.key=NULL}
 };
 
 
 STATIC int HalConfigLoad () {
-
+    
     // check if config file exist
     const char *dirList= getenv("AUDIOHAL_CONFIG_PATH");
     if (!dirList) dirList=CONTROL_CONFIG_PATH;
-    
+
     ctlConfig = CtlConfigLoad(dirList, ctlSections);
     if (!ctlConfig) goto OnErrorExit;        
-    return 0;
-    
+
+    // retrieve alsaHalMap from config section handle
+    halSndCard = calloc (1, sizeof(alsaHalSndCardT));
+    halSndCard->name = ctlConfig->label;
+    halSndCard->info = ctlConfig->info;
+    halSndCard->ctls = ( alsaHalMapT*) ctlConfig->sections[HALMAP_IDX].handle; // Warning [index].handle should match with ctlSections static definition
+
+    int err = halMapAlsaLoad (halSndCard); 
+    return err; 
     
 OnErrorExit:
-   return -1;
+   return 1;
 }
 
 STATIC int HalConfigExec () {
     // process config sessions
     int err = CtlConfigExec (ctlConfig);
-    
-    // retrieve alsaHalMap from config section handle
-    if (!err) {
-        halSndCard = calloc (1, sizeof(alsaHalSndCardT));
-        halSndCard->name = ctlConfig->label;
-        halSndCard->info = ctlConfig->info;
-        halSndCard->ctls = ( alsaHalMapT*) ctlConfig->sections[2].handle; // Warning [index].handle should match with ctlSections static definition
 
-        err = halMapAlsaInit (ctlConfig->api, halSndCard); 
-    }
+    // Should exec AlsaMap here because of full config access    
+    if (!err) err = halMapAlsaExec (ctlConfig->api, halSndCard); 
+    
     return err;   
 }
 
@@ -117,7 +120,7 @@ STATIC int HalConfigExec () {
 // Every HAL export the same API & Interface Mapping from SndCard to AudioLogic is done through alsaHalSndCardT
 STATIC afb_verb_v2 halApiVerbs[] = {
     /* VERB'S NAME         FUNCTION TO CALL         SHORT DESCRIPTION */
-    { .verb = "ping", .callback = pingtest, .info = "ping test for API"},
+    { .verb = "ping",    .callback = pingtest, .info = "ping test for API"},
     { .verb = "ctllist", .callback = halListCtls, .info = "List AGL normalised Sound Controls"},
     { .verb = "ctlget", .callback = halGetCtls, .info = "Get one/many sound controls"},
     { .verb = "ctlset", .callback = halSetCtls, .info = "Set one/many sound controls"},

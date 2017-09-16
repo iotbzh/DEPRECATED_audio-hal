@@ -2,5 +2,5 @@ build/
 CMakeCache.txt
 Makefile
 *.so
-nbproject/private
 .~lock*
+private/

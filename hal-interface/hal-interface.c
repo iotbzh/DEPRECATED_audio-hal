@@ -54,9 +54,10 @@ PUBLIC const char *halCtlsLabels[] = {
 
 
 PUBLIC halCtlsTagT halGetTagByLabel (const char *label) {
+    static int length= sizeof(halCtlsLabels) / sizeof(char*);
     
-    for (int idx=0; halCtlsLabels[idx] != NULL; idx++) {
-        if (!strcasecmp (halCtlsLabels[idx], label)) return (halCtlsTagT)idx;
+    for (int idx=1; idx < length; idx++) {
+        if (halCtlsLabels[idx] && !strcasecmp (halCtlsLabels[idx], label)) return (halCtlsTagT)idx;
     }
     
     return (halCtlsTagT)-1;

@@ -104,7 +104,7 @@ OnErrorExit:
 
 PUBLIC CtlConfigT *CtlConfigLoad(const char* filepath, CtlSectionT *sections) {
     json_object *ctlConfigJ;
-    CtlConfigT *ctlConfig = calloc(1, sizeof (CtlConfigT));
+    CtlConfigT *ctlConfig;
     int err;
 
 #ifdef CONTROL_SUPPORT_LUA
@@ -132,7 +132,7 @@ PUBLIC CtlConfigT *CtlConfigLoad(const char* filepath, CtlSectionT *sections) {
     json_object *metadataJ;
     int done = json_object_object_get_ex(ctlConfigJ, "metadata", &metadataJ);
     if (done) {
-        CtlConfigT *ctlConfig = calloc(1, sizeof (CtlConfigT));
+        ctlConfig = calloc(1, sizeof (CtlConfigT));
         err = wrap_json_unpack(metadataJ, "{ss,ss,ss,s?s,s?o !}", "label", &ctlConfig->label, "version", &ctlConfig->version
                 , "api", &ctlConfig->api, "info", &ctlConfig->info, "require", &ctlConfig->requireJ);
         if (err) {

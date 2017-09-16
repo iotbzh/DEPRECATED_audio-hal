@@ -47,8 +47,8 @@ STATIC int halCtlStringToIndex(const char* label) {
 PUBLIC halCtlsTagT halLabelToTag(const char* label) {
     alsaHalMapT *halCtls = halSndCard->ctls;
 
-    for (int idx = 0; halCtls[idx].tag != EndHalCrlTag; idx++) {
-        if (halCtls[idx].label && !strcasecmp(halCtls[idx].label, label)) return  halCtls[idx].tag;
+    for (int idx = 0; halCtls[idx].label != NULL; idx++) {
+        if (!strcasecmp(halCtls[idx].label, label)) return  halCtls[idx].tag;
     }
 
     // not found
@@ -472,16 +472,11 @@ OnErrorExit:
     return -1;
 }
 
-// this is call when after all bindings are loaded
-
-PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard) {
-    int err;
-    json_object *queryurl, *responseJ, *devidJ, *ctlsJ, *tmpJ;
+PUBLIC int halMapAlsaExec(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard) {
+    json_object *queryurl, *responseJ, *devidJ, *tmpJ;
+    json_object *ctlsJ = alsaHalSndCard->ctlsJ;
     alsaHalMapT *halCtls = alsaHalSndCard->ctls;
-
-    // if not volume normalisation CB provided use default one
-    if (!alsaHalSndCard->volumeCB) alsaHalSndCard->volumeCB = volumeNormalise;
-    halSndCard = alsaHalSndCard;
+    int err;
 
     err = afb_daemon_require_api("alsacore", 1);
     if (err) {
@@ -495,11 +490,11 @@ PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
     json_object_object_add(queryurl, "sndname", json_object_new_string(alsaHalSndCard->name));
 
     err = afb_service_call_sync("alsacore", "halregister", queryurl, &responseJ);
-    json_object_put(queryurl);
     if (err) {
-        AFB_NOTICE("Fail to register HAL to ALSA lowlevel binding Response='%s'", json_object_get_string(responseJ));
+        AFB_NOTICE("Fail to register HAL to ALSA lowlevel binding sndname='%s'", alsaHalSndCard->name);
         goto OnErrorExit;
     }
+    json_object_put(queryurl);
 
     // extract sound devidJ from HAL registration
     if (!json_object_object_get_ex(responseJ, "response", &tmpJ) || !json_object_object_get_ex(tmpJ, "devid", &devidJ)) {
@@ -509,6 +504,65 @@ PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
 
     // save devid for future use
     halSndCard->devid = strdup(json_object_get_string(devidJ));
+    
+        // Build new queryJ to add HAL custom control if any
+    if (json_object_array_length(ctlsJ) > 0) {
+        queryurl = json_object_new_object();
+        json_object_get(devidJ); // make sure devidJ does not get free by 1st call.
+        json_object_object_add(queryurl, "devid", devidJ);
+        json_object_object_add(queryurl, "ctl", ctlsJ);
+        json_object_object_add(queryurl, "mode", json_object_new_int(QUERY_COMPACT));
+        err = afb_service_call_sync("alsacore", "addcustomctl", queryurl, &responseJ);
+        if (err) {
+            AFB_ERROR("Fail creating HAL Custom ALSA ctls Response='%s'", json_object_get_string(responseJ));
+            goto OnErrorExit;
+        }
+    }
+
+    // Make sure response is valid
+    json_object_object_get_ex(responseJ, "response", &ctlsJ);
+    if (json_object_get_type(ctlsJ) != json_type_array) {
+        AFB_ERROR("Response Invalid JSON array ctls Response='%s'", json_object_get_string(responseJ));
+        goto OnErrorExit;
+    }
+
+    // update HAL data from JSON response
+    for (int idx = 0; idx < json_object_array_length(ctlsJ); idx++) {
+        json_object *ctlJ = json_object_array_get_idx(ctlsJ, idx);
+        AFB_NOTICE ("**** halMapAlsaExec idx=%d ctlJ=%s", idx, json_object_get_string(ctlJ));
+        err = UpdateOneSndCtl(&halCtls[idx].ctl, ctlJ);
+        if (err) {
+            AFB_ERROR("Fail found MAP Alsa Low level=%s", json_object_get_string(ctlJ));
+            goto OnErrorExit;
+        }
+    }
+
+
+    // finally register for alsa lowlevel event
+    queryurl = json_object_new_object();
+    json_object_object_add(queryurl, "devid", devidJ);
+    err = afb_service_call_sync("alsacore", "subscribe", queryurl, &responseJ);
+    if (err) {
+        AFB_ERROR("Fail subscribing to ALSA lowlevel events");
+        goto OnErrorExit;
+    }
+  
+    return 0;
+    
+OnErrorExit:
+    return 1;
+}
+
+// this is call when after all bindings are loaded
+
+PUBLIC int halMapAlsaLoad(alsaHalSndCardT *alsaHalSndCard) {
+    json_object *ctlsJ;
+    alsaHalMapT *halCtls = alsaHalSndCard->ctls;
+
+    // if not volume normalisation CB provided use default one
+    if (!alsaHalSndCard->volumeCB) alsaHalSndCard->volumeCB = volumeNormalise;
+    halSndCard = alsaHalSndCard;
+
 
     // for each Non Alsa Control callback create a custom control
     ctlsJ = json_object_new_array();
@@ -518,7 +572,7 @@ PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
         // Try to find best equivalent label for tag
         if (halCtls[idx].tag==0) {
            halCtls[idx].tag =  halGetTagByLabel(halCtls[idx].label);
-           if (halCtls[idx].tag) {
+           if (halCtls[idx].tag < 0) {
                AFB_ERROR ("halMapAlsaInit: fail to match HAL label=%s to wellknown tag", halCtls[idx].label);
                goto OnErrorExit;
            }
@@ -559,48 +613,8 @@ PUBLIC int halMapAlsaInit(const char *apiPrefix, alsaHalSndCardT *alsaHalSndCard
         }
         json_object_array_add(ctlsJ, ctlJ);
     }
-
-    // Build new queryJ to add HAL custom control if any
-    if (json_object_array_length(ctlsJ) > 0) {
-        queryurl = json_object_new_object();
-        json_object_get(devidJ); // make sure devidJ does not get free by 1st call.
-        json_object_object_add(queryurl, "devid", devidJ);
-        json_object_object_add(queryurl, "ctl", ctlsJ);
-        json_object_object_add(queryurl, "mode", json_object_new_int(QUERY_COMPACT));
-        err = afb_service_call_sync("alsacore", "addcustomctl", queryurl, &responseJ);
-        if (err) {
-            AFB_ERROR("Fail creating HAL Custom ALSA ctls Response='%s'", json_object_get_string(responseJ));
-            goto OnErrorExit;
-        }
-    }
-
-    // Make sure response is valid
-    json_object_object_get_ex(responseJ, "response", &ctlsJ);
-    if (json_object_get_type(ctlsJ) != json_type_array) {
-        AFB_ERROR("Response Invalid JSON array ctls Response='%s'", json_object_get_string(responseJ));
-        goto OnErrorExit;
-    }
-
-    // update HAL data from JSON response
-    for (int idx = 0; idx < json_object_array_length(ctlsJ); idx++) {
-        json_object *ctlJ = json_object_array_get_idx(ctlsJ, idx);
-        err = UpdateOneSndCtl(&halCtls[idx].ctl, ctlJ);
-        if (err) {
-            AFB_ERROR("Fail found MAP Alsa Low level=%s", json_object_get_string(ctlJ));
-            goto OnErrorExit;
-        }
-    }
-
-
-    // finally register for alsa lowlevel event
-    queryurl = json_object_new_object();
-    json_object_object_add(queryurl, "devid", devidJ);
-    err = afb_service_call_sync("alsacore", "subscribe", queryurl, &responseJ);
-    if (err) {
-        AFB_ERROR("Fail subscribing to ALSA lowlevel events");
-        goto OnErrorExit;
-    }
-
+    alsaHalSndCard->ctlsJ = ctlsJ;
+    
     return (0);
 
 OnErrorExit:
